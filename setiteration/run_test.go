@@ -23,6 +23,14 @@ func TestRun(t *testing.T) {
           "id": "PVTIF_22222222222222222222",
           "name": "Iteration",
           "configuration": {
+            "completedIterations": [
+              {
+                "id": "00000a0b",
+                "title": "Iteration 0",
+                "startDate": "2022-12-25",
+                "duration": 7
+              }
+            ],
             "iterations": [
               {
                 "id": "11111a1b",
@@ -94,15 +102,15 @@ func TestRun(t *testing.T) {
 		"https://github.com/users/notomo/projects/1",
 		"https://github.com/notomo/example/issues/2",
 		"Iteration",
-		-7,
+		-14,
 		false,
 		output,
 	))
 
 	want := `
 Item is updated:
-- iteration title: Iteration 1
-- iteration start date: 2023-01-01
+- iteration title: Iteration 0
+- iteration start date: 2022-12-25
 `
 	got := output.String()
 	assert.Equal(t, want, got)

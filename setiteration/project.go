@@ -21,12 +21,16 @@ type ProjectV2IterationField struct {
 	ID            string
 	Name          string
 	Configuration struct {
-		Iterations []Iteration
+		Iterations          []Iteration
+		CompletedIterations []Iteration
 	}
 }
 
 func (f *ProjectV2IterationField) SelectIteration(startDate string) *Iteration {
-	for _, iteration := range f.Configuration.Iterations {
+	iterations := []Iteration{}
+	iterations = append(iterations, f.Configuration.Iterations...)
+	iterations = append(iterations, f.Configuration.CompletedIterations...)
+	for _, iteration := range iterations {
 		iteration := iteration
 		if iteration.StartDate == startDate {
 			return &iteration
