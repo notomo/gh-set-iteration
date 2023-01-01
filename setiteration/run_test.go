@@ -27,7 +27,7 @@ func TestRun(t *testing.T) {
               {
                 "id": "11111a1b",
                 "title": "Iteration 1",
-                "startDate": "2022-01-01",
+                "startDate": "2023-01-01",
                 "duration": 7
               },
               {
@@ -94,14 +94,15 @@ func TestRun(t *testing.T) {
 		"https://github.com/users/notomo/projects/1",
 		"https://github.com/notomo/example/issues/2",
 		"Iteration",
+		-7,
 		false,
 		output,
 	))
 
 	want := `
 Item is updated:
-- iteration title: Iteration 2
-- iteration start date: 2023-01-08
+- iteration title: Iteration 1
+- iteration start date: 2023-01-01
 `
 	got := output.String()
 	assert.Equal(t, want, got)

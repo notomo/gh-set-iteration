@@ -12,6 +12,7 @@ func Run(
 	projectUrl string,
 	issueOrPullRequestUrl string,
 	iterationFieldName string,
+	offsetDays int,
 	dryRun bool,
 	writer io.Writer,
 ) error {
@@ -33,10 +34,15 @@ func Run(
 		return err
 	}
 
-	startDate, err := ExtractDate(content.Title)
+	extractedDate, err := ExtractDate(content.Title)
 	if err != nil {
 		return err
 	}
+	startDate, err := ShiftDate(extractedDate, offsetDays)
+	if err != nil {
+		return err
+	}
+
 	iteration := project.Field.SelectIteration(startDate)
 	if iteration == nil {
 		return fmt.Errorf("no matched iteration: startDate=%s", startDate)

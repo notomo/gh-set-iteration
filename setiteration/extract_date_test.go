@@ -25,3 +25,9 @@ func TestExtractDate(t *testing.T) {
 		require.Error(t, err)
 	})
 }
+
+func TestShiftDate(t *testing.T) {
+	got, err := ShiftDate("2022-01-01", 7)
+	require.NoError(t, err)
+	assert.Equal(t, "2022-01-08", got)
+}

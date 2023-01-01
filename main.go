@@ -18,6 +18,7 @@ const (
 	paramIterationField = "field"
 	paramLog            = "log"
 	paramDryRun         = "dry-run"
+	paramOffsetDays     = "offset-days"
 )
 
 func main() {
@@ -44,6 +45,7 @@ func main() {
 				c.String(paramProjectUrl),
 				c.String(paramContentUrl),
 				c.String(paramIterationField),
+				c.Int(paramOffsetDays),
 				c.Bool(paramDryRun),
 				os.Stdout,
 			)
@@ -71,6 +73,11 @@ func main() {
 				Name:  paramLog,
 				Value: "",
 				Usage: "log file path",
+			},
+			&cli.IntFlag{
+				Name:  paramOffsetDays,
+				Value: 0,
+				Usage: "offset days to adjust iteration's start date",
 			},
 			&cli.BoolFlag{
 				Name:  paramDryRun,
