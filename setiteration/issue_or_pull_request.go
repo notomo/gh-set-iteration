@@ -5,24 +5,15 @@ import (
 	graphql "github.com/cli/shurcooL-graphql"
 )
 
-type Issue struct {
-	ID    string
-	Title string
-}
-
-type PullRequest struct {
-	ID    string
-	Title string
-}
-
 type Content struct {
 	ID    string
 	Title string
 }
 
+type DummyContent = Content
 type IssueOrPullRequest struct {
-	Issue       `graphql:"... on Issue"`
-	PullRequest `graphql:"... on PullRequest"`
+	Content      `graphql:"... on Issue"`
+	DummyContent `graphql:"... on PullRequest"` // dummy to avoid `Content redeclared`
 }
 
 type GetIssueOrPullRequestQuery struct {
@@ -44,15 +35,5 @@ func GetIssueOrPullRequest(
 	if err := gql.Query("GetIssueOrPullRequest", &query, vars); err != nil {
 		return nil, err
 	}
-
-	if query.Repository.IssueOrPullRequest.Issue.ID != "" {
-		return &Content{
-			ID:    query.Repository.IssueOrPullRequest.Issue.ID,
-			Title: query.Repository.IssueOrPullRequest.Issue.Title,
-		}, nil
-	}
-	return &Content{
-		ID:    query.Repository.IssueOrPullRequest.PullRequest.ID,
-		Title: query.Repository.IssueOrPullRequest.PullRequest.Title,
-	}, nil
+	return &query.Repository.IssueOrPullRequest.Content, nil
 }

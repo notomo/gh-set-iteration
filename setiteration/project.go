@@ -52,7 +52,7 @@ type ProjectV2 struct {
 func (f *ProjectV2) SelectItem(contentID string) *Item {
 	for _, node := range f.Items.Nodes {
 		node := node
-		if node.Content.Issue.ID == contentID || node.Content.PullRequest.ID == contentID {
+		if node.Content.Content.ID == contentID {
 			return &node
 		}
 	}
