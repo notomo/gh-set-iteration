@@ -67,18 +67,31 @@ type GetUserProjectQuery struct {
 	User GetProjectQuery `graphql:"user(login: $owner)"`
 }
 
-// TODO: org support
+// TODO: test by real org
+type GetOrganizationProjectQuery struct {
+	Organization GetProjectQuery `graphql:"organization(login: $owner)"`
+}
+
 func GetProject(
 	gql api.GQLClient,
 	descriptor ProjectDescriptor,
 	iterationFieldName string,
 ) (*ProjectV2, error) {
-	var query GetUserProjectQuery
 	vars := map[string]interface{}{
 		"owner":         graphql.String(descriptor.Owner),
 		"projectNumber": graphql.Int(descriptor.Number),
 		"fieldName":     graphql.String(iterationFieldName),
 	}
+
+	if descriptor.OwnerIsOrganization {
+		var query GetOrganizationProjectQuery
+		if err := gql.Query("GetProject", &query, vars); err != nil {
+			return nil, err
+		}
+		return &query.Organization.ProjectV2, nil
+	}
+
+	var query GetUserProjectQuery
 	if err := gql.Query("GetProject", &query, vars); err != nil {
 		return nil, err
 	}
