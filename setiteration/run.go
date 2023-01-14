@@ -48,15 +48,15 @@ func Run(
 		return fmt.Errorf("no matched iteration: startDate=%s", startDate)
 	}
 
-	item := project.SelectItem(content.ID)
-	if item == nil {
-		return fmt.Errorf("no matched item")
+	projectItem := project.SelectItem(content.ID)
+	if projectItem == nil {
+		return fmt.Errorf("no matched project item")
 	}
 
 	if err := UpdateIteration(
 		gql,
 		project.ID,
-		item.ID,
+		projectItem.ID,
 		project.Field.ID,
 		iteration.ID,
 		dryRun,

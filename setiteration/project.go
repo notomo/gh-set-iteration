@@ -12,11 +12,6 @@ type Iteration struct {
 	Duration  int
 }
 
-type Item struct {
-	ID      string
-	Content IssueOrPullRequest
-}
-
 type ProjectV2IterationField struct {
 	ID            string
 	Name          string
@@ -39,17 +34,23 @@ func (f *ProjectV2IterationField) SelectIteration(startDate string) *Iteration {
 	return nil
 }
 
+type ProjectItem struct {
+	ID      string
+	Content IssueOrPullRequest
+}
+
 type ProjectV2 struct {
 	ID    string
 	Field struct {
 		ProjectV2IterationField `graphql:"... on ProjectV2IterationField"`
 	} `graphql:"field(name: $fieldName)"`
 	Items struct {
-		Nodes []Item
+		// TODO: pagenation ?
+		Nodes []ProjectItem
 	} `graphql:"items(last: 100)"`
 }
 
-func (f *ProjectV2) SelectItem(contentID string) *Item {
+func (f *ProjectV2) SelectItem(contentID string) *ProjectItem {
 	for _, node := range f.Items.Nodes {
 		node := node
 		if node.Content.Content.ID == contentID {

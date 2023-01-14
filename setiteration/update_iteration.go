@@ -14,7 +14,7 @@ type UpdateIterationMutation struct {
 func UpdateIteration(
 	gql api.GQLClient,
 	projectId string,
-	itemId string,
+	projectItemId string,
 	fieldId string,
 	iterationId string,
 	dryRun bool,
@@ -25,7 +25,7 @@ func UpdateIteration(
 	var mutation UpdateIterationMutation
 	vars := map[string]interface{}{
 		"projectId":   graphql.ID(projectId),
-		"itemId":      graphql.ID(itemId),
+		"itemId":      graphql.ID(projectItemId),
 		"fieldId":     graphql.ID(fieldId),
 		"iterationId": graphql.String(iterationId),
 	}
