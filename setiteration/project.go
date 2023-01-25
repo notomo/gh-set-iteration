@@ -68,7 +68,6 @@ type GetUserProjectQuery struct {
 	User GetProjectQuery `graphql:"user(login: $owner)"`
 }
 
-// TODO: test by real org
 type GetOrganizationProjectQuery struct {
 	Organization GetProjectQuery `graphql:"organization(login: $owner)"`
 }
