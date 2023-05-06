@@ -6,7 +6,7 @@ require (
 	github.com/cli/go-gh v1.2.1
 	github.com/cli/shurcooL-graphql v0.0.3
 	github.com/stretchr/testify v1.8.2
-	github.com/urfave/cli/v2 v2.25.1
+	github.com/urfave/cli/v2 v2.25.3
 )
 
 require (
