@@ -13,6 +13,7 @@ func Run(
 	issueOrPullRequestUrl string,
 	iterationFieldName string,
 	offsetDays int,
+	iterationMatchType IterationMatchType,
 	dryRun bool,
 	writer io.Writer,
 ) error {
@@ -38,14 +39,17 @@ func Run(
 	if err != nil {
 		return err
 	}
-	startDate, err := ShiftDate(extractedDate, offsetDays)
+	targetDate, err := ShiftDate(extractedDate, offsetDays)
 	if err != nil {
 		return err
 	}
 
-	iteration := project.Field.SelectIteration(startDate)
+	iteration, err := project.Field.SelectIteration(targetDate, iterationMatchType)
+	if err != nil {
+		return err
+	}
 	if iteration == nil {
-		return fmt.Errorf("no matched iteration: startDate=%s", startDate)
+		return fmt.Errorf("no matched iteration: targetDate=%s", targetDate)
 	}
 
 	projectItem := project.SelectItem(content.ID)
@@ -68,7 +72,7 @@ func Run(
 Item is updated:
 - iteration title: %s
 - iteration start date: %s
-`, iteration.Title, startDate)
+`, iteration.Title, iteration.StartDate)
 	if _, err := writer.Write([]byte(message)); err != nil {
 		return err
 	}

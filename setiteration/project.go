@@ -1,6 +1,9 @@
 package setiteration
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/cli/go-gh/pkg/api"
 	graphql "github.com/cli/shurcooL-graphql"
 )
@@ -12,6 +15,43 @@ type Iteration struct {
 	Duration  int
 }
 
+func (iteration *Iteration) Contains(date string) (bool, error) {
+	iterationStart, err := time.Parse(time.DateOnly, iteration.StartDate)
+	if err != nil {
+		return false, err
+	}
+
+	iterationEnd := iterationStart.AddDate(0, 0, iteration.Duration-1)
+
+	target, err := time.Parse(time.DateOnly, date)
+	if err != nil {
+		return false, err
+	}
+
+	return iterationStart.Add(-time.Nanosecond).Before(target) && iterationEnd.Add(time.Nanosecond).After(target), nil
+}
+
+type IterationMatchType string
+
+var (
+	IterationMatchTypeStartDateExactly = IterationMatchType("startDateExactly")
+	IterationMatchTypeContains         = IterationMatchType("contains")
+)
+
+func matchIteration(
+	iteration Iteration,
+	targetDate string,
+	matchType IterationMatchType,
+) (bool, error) {
+	switch matchType {
+	case IterationMatchTypeStartDateExactly:
+		return iteration.StartDate == targetDate, nil
+	case IterationMatchTypeContains:
+		return iteration.Contains(targetDate)
+	}
+	return false, fmt.Errorf("unexpected iteration match type: %s", matchType)
+}
+
 type ProjectV2IterationField struct {
 	ID            string
 	Name          string
@@ -21,17 +61,25 @@ type ProjectV2IterationField struct {
 	}
 }
 
-func (f *ProjectV2IterationField) SelectIteration(startDate string) *Iteration {
+func (f *ProjectV2IterationField) SelectIteration(
+	targetDate string,
+	matchType IterationMatchType,
+) (*Iteration, error) {
 	iterations := []Iteration{}
 	iterations = append(iterations, f.Configuration.Iterations...)
 	iterations = append(iterations, f.Configuration.CompletedIterations...)
 	for _, iteration := range iterations {
 		iteration := iteration
-		if iteration.StartDate == startDate {
-			return &iteration
+
+		matched, err := matchIteration(iteration, targetDate, matchType)
+		if err != nil {
+			return nil, err
+		}
+		if matched {
+			return &iteration, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 type ProjectItem struct {

@@ -13,3 +13,6 @@ start: install
 
 test:
 	go test -v ./...
+
+help:
+	go run main.go -h

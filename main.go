@@ -13,12 +13,13 @@ import (
 )
 
 const (
-	paramProjectUrl     = "project-url"
-	paramContentUrl     = "content-url"
-	paramIterationField = "field"
-	paramLog            = "log"
-	paramDryRun         = "dry-run"
-	paramOffsetDays     = "offset-days"
+	paramProjectUrl         = "project-url"
+	paramContentUrl         = "content-url"
+	paramIterationField     = "field"
+	paramLog                = "log"
+	paramDryRun             = "dry-run"
+	paramOffsetDays         = "offset-days"
+	paramIterationMatchType = "match"
 )
 
 func main() {
@@ -46,6 +47,7 @@ func main() {
 				c.String(paramContentUrl),
 				c.String(paramIterationField),
 				c.Int(paramOffsetDays),
+				setiteration.IterationMatchType(c.String(paramIterationMatchType)),
 				c.Bool(paramDryRun),
 				os.Stdout,
 			)
@@ -78,6 +80,16 @@ func main() {
 				Name:  paramOffsetDays,
 				Value: 0,
 				Usage: "offset days to adjust iteration's start date",
+			},
+			&cli.StringFlag{
+				Name:  paramIterationMatchType,
+				Value: string(setiteration.IterationMatchTypeStartDateExactly),
+				Usage: `
+This changes iteration select behavior.
+Iteration match type is the following:
+- startDateExactly: match with iteration start_date (default)
+- contains: match if date is contains iteration date range
+				`,
 			},
 			&cli.BoolFlag{
 				Name:  paramDryRun,
