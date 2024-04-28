@@ -7,11 +7,22 @@ import (
 	"github.com/cli/go-gh/pkg/api"
 )
 
+type ContentState string
+
+var (
+	ContentStateAll    = ContentState("all")
+	ContentStateOpen   = ContentState("open")
+	ContentStateClosed = ContentState("closed")
+)
+
+var ErrSkipped = fmt.Errorf("skipped")
+
 func Run(
 	gql api.GQLClient,
 	projectUrl string,
 	issueOrPullRequestUrl string,
 	iterationFieldName string,
+	contentState ContentState,
 	offsetDays int,
 	iterationMatchType IterationMatchType,
 	dryRun bool,
@@ -33,6 +44,13 @@ func Run(
 	content, err := GetIssueOrPullRequest(gql, *descriptor)
 	if err != nil {
 		return err
+	}
+
+	if contentState == ContentStateOpen && content.Closed {
+		return fmt.Errorf("content is closed (state filter=open): %w", ErrSkipped)
+	}
+	if contentState == ContentStateClosed && !content.Closed {
+		return fmt.Errorf("content is open (state filter=closed): %w", ErrSkipped)
 	}
 
 	extractedDate, err := ExtractDate(content.Title)

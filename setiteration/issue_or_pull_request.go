@@ -6,8 +6,9 @@ import (
 )
 
 type Content struct {
-	ID    string
-	Title string
+	ID     string
+	Title  string
+	Closed bool
 }
 
 type DummyContent = Content

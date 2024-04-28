@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
+
+	"slices"
 
 	"github.com/cli/go-gh"
 	"github.com/cli/go-gh/pkg/api"
@@ -16,6 +19,7 @@ const (
 	paramProjectUrl         = "project-url"
 	paramContentUrl         = "content-url"
 	paramIterationField     = "field"
+	paramState              = "state"
 	paramLog                = "log"
 	paramDryRun             = "dry-run"
 	paramOffsetDays         = "offset-days"
@@ -46,6 +50,7 @@ func main() {
 				c.String(paramProjectUrl),
 				c.String(paramContentUrl),
 				c.String(paramIterationField),
+				setiteration.ContentState(c.String(paramState)),
 				c.Int(paramOffsetDays),
 				setiteration.IterationMatchType(c.String(paramIterationMatchType)),
 				c.Bool(paramDryRun),
@@ -70,6 +75,18 @@ func main() {
 				Value:    "",
 				Required: true,
 				Usage:    "iteration field name",
+			},
+			&cli.StringFlag{
+				Name:  paramState,
+				Value: "all",
+				Usage: "issue or pull request state filter (closed,open,all)",
+				Action: func(ctx *cli.Context, v string) error {
+					options := []string{"closed", "open", "all"}
+					if !slices.Contains(options, v) {
+						return fmt.Errorf("state must be one of %s, but actual %s", options, v)
+					}
+					return nil
+				},
 			},
 			&cli.StringFlag{
 				Name:  paramLog,
@@ -99,6 +116,10 @@ Iteration match type is the following:
 		},
 	}
 	if err := app.Run(os.Args); err != nil {
+		if errors.Is(err, setiteration.ErrSkipped) {
+			log.Println(err.Error())
+			return
+		}
 		log.Fatal(err)
 	}
 }

@@ -102,6 +102,7 @@ func TestRun(t *testing.T) {
 		"https://github.com/users/notomo/projects/1",
 		"https://github.com/notomo/example/issues/2",
 		"Iteration",
+		ContentStateAll,
 		-14,
 		IterationMatchTypeStartDateExactly,
 		false,
