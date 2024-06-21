@@ -106,6 +106,7 @@ func TestRun(t *testing.T) {
 		-14,
 		IterationMatchTypeStartDateExactly,
 		false,
+		300,
 		output,
 	))
 

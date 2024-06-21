@@ -93,9 +93,9 @@ type ProjectV2 struct {
 		ProjectV2IterationField `graphql:"... on ProjectV2IterationField"`
 	} `graphql:"field(name: $fieldName)"`
 	Items struct {
-		// TODO: pagenation ?
-		Nodes []ProjectItem
-	} `graphql:"items(last: 100)"`
+		Nodes    []ProjectItem
+		PageInfo PageInfo
+	} `graphql:"items(first: $limit, after: $after, orderBy: {field:POSITION, direction:DESC})"`
 }
 
 func (f *ProjectV2) SelectItem(contentID string) *ProjectItem {
@@ -124,6 +124,7 @@ func GetProject(
 	gql api.GQLClient,
 	descriptor ProjectDescriptor,
 	iterationFieldName string,
+	itemLimit int,
 ) (*ProjectV2, error) {
 	vars := map[string]interface{}{
 		"owner":         graphql.String(descriptor.Owner),
@@ -131,17 +132,27 @@ func GetProject(
 		"fieldName":     graphql.String(iterationFieldName),
 	}
 
+	items := []ProjectItem{}
+
 	if descriptor.OwnerIsOrganization {
 		var query GetOrganizationProjectQuery
-		if err := gql.Query("GetProject", &query, vars); err != nil {
+		if err := Paginate(gql, "GetProject", &query, vars, func() (PageInfo, int) {
+			items = append(items, query.Organization.Items.Nodes...)
+			return query.Organization.Items.PageInfo, len(items)
+		}, itemLimit); err != nil {
 			return nil, err
 		}
+		query.Organization.Items.Nodes = items
 		return &query.Organization.ProjectV2, nil
 	}
 
 	var query GetUserProjectQuery
-	if err := gql.Query("GetProject", &query, vars); err != nil {
+	if err := Paginate(gql, "GetProject", &query, vars, func() (PageInfo, int) {
+		items = append(items, query.User.Items.Nodes...)
+		return query.User.Items.PageInfo, len(items)
+	}, itemLimit); err != nil {
 		return nil, err
 	}
+	query.User.Items.Nodes = items
 	return &query.User.ProjectV2, nil
 }

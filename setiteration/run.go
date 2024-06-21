@@ -26,13 +26,14 @@ func Run(
 	offsetDays int,
 	iterationMatchType IterationMatchType,
 	dryRun bool,
+	itemLimit int,
 	writer io.Writer,
 ) error {
 	projectDescriptor, err := GetProjectDescriptor(projectUrl)
 	if err != nil {
 		return err
 	}
-	project, err := GetProject(gql, *projectDescriptor, iterationFieldName)
+	project, err := GetProject(gql, *projectDescriptor, iterationFieldName, itemLimit)
 	if err != nil {
 		return err
 	}

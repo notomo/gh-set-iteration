@@ -24,6 +24,7 @@ const (
 	paramDryRun             = "dry-run"
 	paramOffsetDays         = "offset-days"
 	paramIterationMatchType = "match"
+	paramItemLimit          = "item-limit"
 )
 
 func main() {
@@ -54,6 +55,7 @@ func main() {
 				c.Int(paramOffsetDays),
 				setiteration.IterationMatchType(c.String(paramIterationMatchType)),
 				c.Bool(paramDryRun),
+				c.Int(paramItemLimit),
 				os.Stdout,
 			)
 		},
@@ -112,6 +114,11 @@ Iteration match type is the following:
 				Name:  paramDryRun,
 				Value: false,
 				Usage: "nothing is updated",
+			},
+			&cli.IntFlag{
+				Name:  paramItemLimit,
+				Value: 300,
+				Usage: "project item count limit",
 			},
 		},
 	}
