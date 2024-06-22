@@ -34,25 +34,30 @@ func Run(
 		return err
 	}
 
-	projectDescriptor, err := GetProjectDescriptor(projectUrl)
-	if err != nil {
-		return err
-	}
-	project, err := GetProject(gql, *projectDescriptor, iterationFieldName, itemLimit)
-	if err != nil {
-		return err
-	}
-
 	extractedDate, err := ExtractDate(content.Title)
 	if err != nil {
 		return err
 	}
+
 	targetDate, err := ShiftDate(extractedDate, offsetDays)
 	if err != nil {
 		return err
 	}
 
-	iteration, err := project.Field.SelectIteration(targetDate, iterationMatchType)
+	projectDescriptor, err := GetProjectDescriptor(projectUrl)
+	if err != nil {
+		return err
+	}
+
+	project, projectItem, err := GetProject(gql, *projectDescriptor, iterationFieldName, itemLimit, content.ID)
+	if err != nil {
+		return err
+	}
+	if projectItem == nil {
+		return fmt.Errorf("no matched project item")
+	}
+
+	iteration, err := project.IterationField.SelectIteration(targetDate, iterationMatchType)
 	if err != nil {
 		return err
 	}
@@ -60,16 +65,11 @@ func Run(
 		return fmt.Errorf("no matched iteration: targetDate=%s", targetDate)
 	}
 
-	projectItem := project.SelectItem(content.ID)
-	if projectItem == nil {
-		return fmt.Errorf("no matched project item")
-	}
-
 	if err := UpdateIteration(
 		gql,
 		project.ID,
 		projectItem.ID,
-		project.Field.ID,
+		project.IterationField.ID,
 		iteration.ID,
 		dryRun,
 	); err != nil {
