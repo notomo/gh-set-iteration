@@ -29,6 +29,11 @@ func Run(
 	itemLimit int,
 	writer io.Writer,
 ) error {
+	content, err := getContent(gql, issueOrPullRequestUrl, contentState)
+	if err != nil {
+		return err
+	}
+
 	projectDescriptor, err := GetProjectDescriptor(projectUrl)
 	if err != nil {
 		return err
@@ -36,22 +41,6 @@ func Run(
 	project, err := GetProject(gql, *projectDescriptor, iterationFieldName, itemLimit)
 	if err != nil {
 		return err
-	}
-
-	descriptor, err := GetIssueOrPullRequestDescriptor(issueOrPullRequestUrl)
-	if err != nil {
-		return err
-	}
-	content, err := GetIssueOrPullRequest(gql, *descriptor)
-	if err != nil {
-		return err
-	}
-
-	if contentState == ContentStateOpen && content.Closed {
-		return fmt.Errorf("content is closed (state filter=open): %w", ErrSkipped)
-	}
-	if contentState == ContentStateClosed && !content.Closed {
-		return fmt.Errorf("content is open (state filter=closed): %w", ErrSkipped)
 	}
 
 	extractedDate, err := ExtractDate(content.Title)
@@ -97,4 +86,30 @@ Item is updated:
 	}
 
 	return nil
+}
+
+func getContent(
+	gql api.GQLClient,
+	issueOrPullRequestUrl string,
+	contentState ContentState,
+) (*Content, error) {
+	descriptor, err := GetIssueOrPullRequestDescriptor(issueOrPullRequestUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	content, err := GetIssueOrPullRequest(gql, *descriptor)
+	if err != nil {
+		return nil, err
+	}
+
+	if contentState == ContentStateOpen && content.Closed {
+		return nil, fmt.Errorf("content is closed (state filter=open): %w", ErrSkipped)
+	}
+
+	if contentState == ContentStateClosed && !content.Closed {
+		return nil, fmt.Errorf("content is open (state filter=closed): %w", ErrSkipped)
+	}
+
+	return content, nil
 }
