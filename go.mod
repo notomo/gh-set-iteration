@@ -7,7 +7,7 @@ toolchain go1.21.0
 require (
 	github.com/cli/go-gh v1.2.1
 	github.com/cli/shurcooL-graphql v0.0.4
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.27.5
 )
 
