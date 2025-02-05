@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/cli/go-gh/pkg/api"
+	"github.com/cli/go-gh/v2/pkg/api"
 )
 
 type ContentState string
@@ -18,7 +18,7 @@ var (
 var ErrSkipped = fmt.Errorf("skipped")
 
 func Run(
-	gql api.GQLClient,
+	gql *api.GraphQLClient,
 	projectUrl string,
 	issueOrPullRequestUrl string,
 	iterationFieldName string,
@@ -89,7 +89,7 @@ Item is updated:
 }
 
 func getContent(
-	gql api.GQLClient,
+	gql *api.GraphQLClient,
 	issueOrPullRequestUrl string,
 	contentState ContentState,
 ) (*Content, error) {

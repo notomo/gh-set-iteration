@@ -1,7 +1,7 @@
 package setiteration
 
 import (
-	"github.com/cli/go-gh/pkg/api"
+	"github.com/cli/go-gh/v2/pkg/api"
 	graphql "github.com/cli/shurcooL-graphql"
 )
 
@@ -12,7 +12,7 @@ type UpdateIterationMutation struct {
 }
 
 func UpdateIteration(
-	gql api.GQLClient,
+	gql *api.GraphQLClient,
 	projectId string,
 	projectItemId string,
 	fieldId string,

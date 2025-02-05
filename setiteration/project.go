@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cli/go-gh/pkg/api"
+	"github.com/cli/go-gh/v2/pkg/api"
 	graphql "github.com/cli/shurcooL-graphql"
 )
 
@@ -116,7 +116,7 @@ type GetOrganizationProjectQuery struct {
 }
 
 func GetProject(
-	gql api.GQLClient,
+	gql *api.GraphQLClient,
 	descriptor ProjectDescriptor,
 	iterationFieldName string,
 	itemLimit int,

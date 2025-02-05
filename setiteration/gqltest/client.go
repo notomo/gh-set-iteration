@@ -7,8 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cli/go-gh"
-	"github.com/cli/go-gh/pkg/api"
+	"github.com/cli/go-gh/v2/pkg/api"
 )
 
 type Transport struct {
@@ -32,7 +31,7 @@ type Option struct {
 	Handlers []Handler
 }
 
-func New(t *testing.T, opts ...func(*Option)) (api.GQLClient, error) {
+func New(t *testing.T, opts ...func(*Option)) (*api.GraphQLClient, error) {
 	option := Option{}
 	for _, opt := range opts {
 		opt(&option)
@@ -57,7 +56,7 @@ func New(t *testing.T, opts ...func(*Option)) (api.GQLClient, error) {
 		}
 		http.Error(w, "no matched handler for query: "+body.Query, http.StatusNotFound)
 	}
-	return gh.GQLClient(&api.ClientOptions{
+	return api.NewGraphQLClient(api.ClientOptions{
 		Transport: &Transport{Handler: handler},
 	})
 }

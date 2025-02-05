@@ -8,8 +8,7 @@ import (
 
 	"slices"
 
-	"github.com/cli/go-gh"
-	"github.com/cli/go-gh/pkg/api"
+	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/notomo/gh-set-iteration/setiteration"
 
 	"github.com/urfave/cli/v2"
@@ -31,7 +30,7 @@ func main() {
 	app := &cli.App{
 		Name: "gh-set-iteration",
 		Action: func(c *cli.Context) error {
-			opts := &api.ClientOptions{}
+			opts := api.ClientOptions{}
 			logFilePath := c.String(paramLog)
 			if logFilePath != "" {
 				f, err := os.Create(logFilePath)
@@ -42,7 +41,7 @@ func main() {
 				opts.Log = f
 				opts.LogVerboseHTTP = true
 			}
-			gql, err := gh.GQLClient(opts)
+			gql, err := api.NewGraphQLClient(opts)
 			if err != nil {
 				return fmt.Errorf("create gql client: %w", err)
 			}
