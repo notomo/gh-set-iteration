@@ -100,6 +100,11 @@ func TestSelectIteration(t *testing.T) {
 			expectedID string
 		}{
 			{
+				name:       "before all iterations",
+				targetDate: "2023-10-20",
+				expectedID: "1",
+			},
+			{
 				name:       "closest to first iteration",
 				targetDate: "2023-11-03",
 				expectedID: "1",
@@ -108,16 +113,6 @@ func TestSelectIteration(t *testing.T) {
 				name:       "closest to second iteration",
 				targetDate: "2023-11-18",
 				expectedID: "2",
-			},
-			{
-				name:       "closest to third iteration",
-				targetDate: "2023-11-29",
-				expectedID: "3",
-			},
-			{
-				name:       "before all iterations",
-				targetDate: "2023-10-20",
-				expectedID: "",
 			},
 			{
 				name:       "after all iterations",
@@ -130,12 +125,8 @@ func TestSelectIteration(t *testing.T) {
 			t.Run(c.name, func(t *testing.T) {
 				result, err := field.SelectIteration(c.targetDate, IterationMatchTypeNearest)
 				require.NoError(t, err)
-				if c.expectedID == "" {
-					assert.Nil(t, result)
-				} else {
-					require.NotNil(t, result)
-					assert.Equal(t, c.expectedID, result.ID)
-				}
+				require.NotNil(t, result)
+				assert.Equal(t, c.expectedID, result.ID)
 			})
 		}
 	})

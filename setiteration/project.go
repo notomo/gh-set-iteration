@@ -1,7 +1,9 @@
 package setiteration
 
 import (
+	"cmp"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/cli/go-gh/v2/pkg/api"
@@ -88,50 +90,38 @@ func (f *ProjectV2IterationField) SelectIteration(
 }
 
 func (f *ProjectV2IterationField) selectNearestIteration(targetDate string) (*Iteration, error) {
+	if len(f.Configuration.Iterations) == 0 {
+		return nil, nil
+	}
+
 	target, err := time.Parse(time.DateOnly, targetDate)
 	if err != nil {
 		return nil, err
 	}
 
-	// Check if target date is before all iterations
-	var earliestStart *time.Time
-	for _, iteration := range f.Configuration.Iterations {
-		iterationStart, err := time.Parse(time.DateOnly, iteration.StartDate)
-		if err != nil {
-			continue
+	slices.SortFunc(f.Configuration.Iterations, func(a, b Iteration) int {
+		if n := cmp.Compare(a.StartDate, b.StartDate); n != 0 {
+			return -n
 		}
-		if earliestStart == nil || iterationStart.Before(*earliestStart) {
-			earliestStart = &iterationStart
-		}
-	}
-
-	if earliestStart != nil && target.Before(*earliestStart) {
-		return nil, nil
-	}
-
-	var nearest *Iteration
-	var minDiff time.Duration
+		return cmp.Compare(a.ID, b.ID)
+	})
 
 	for _, iteration := range f.Configuration.Iterations {
 		iteration := iteration
-		
-		iterationStart, err := time.Parse(time.DateOnly, iteration.StartDate)
+
+		s, err := time.Parse(time.DateOnly, iteration.StartDate)
 		if err != nil {
-			continue
+			return nil, err
 		}
 
-		diff := target.Sub(iterationStart)
-		if diff < 0 {
-			diff = -diff
-		}
-
-		if nearest == nil || diff < minDiff {
-			nearest = &iteration
-			minDiff = diff
+		diff := target.Sub(s)
+		if diff >= 0 {
+			return &iteration, nil
 		}
 	}
 
-	return nearest, nil
+	last := f.Configuration.Iterations[len(f.Configuration.Iterations)-1]
+	return &last, nil
 }
 
 type ProjectItem struct {
