@@ -78,3 +78,65 @@ func TestContains(t *testing.T) {
 		}
 	})
 }
+
+func TestSelectIteration(t *testing.T) {
+	t.Run("nearest match type", func(t *testing.T) {
+		field := &ProjectV2IterationField{
+			Configuration: struct {
+				Iterations          []Iteration
+				CompletedIterations []Iteration
+			}{
+				Iterations: []Iteration{
+					{ID: "1", StartDate: "2023-11-01", Duration: 7},
+					{ID: "2", StartDate: "2023-11-15", Duration: 7},
+					{ID: "3", StartDate: "2023-12-01", Duration: 7},
+				},
+			},
+		}
+
+		cases := []struct {
+			name       string
+			targetDate string
+			expectedID string
+		}{
+			{
+				name:       "closest to first iteration",
+				targetDate: "2023-11-03",
+				expectedID: "1",
+			},
+			{
+				name:       "closest to second iteration",
+				targetDate: "2023-11-18",
+				expectedID: "2",
+			},
+			{
+				name:       "closest to third iteration",
+				targetDate: "2023-11-29",
+				expectedID: "3",
+			},
+			{
+				name:       "before all iterations",
+				targetDate: "2023-10-20",
+				expectedID: "",
+			},
+			{
+				name:       "after all iterations",
+				targetDate: "2023-12-15",
+				expectedID: "3",
+			},
+		}
+
+		for _, c := range cases {
+			t.Run(c.name, func(t *testing.T) {
+				result, err := field.SelectIteration(c.targetDate, IterationMatchTypeNearest)
+				require.NoError(t, err)
+				if c.expectedID == "" {
+					assert.Nil(t, result)
+				} else {
+					require.NotNil(t, result)
+					assert.Equal(t, c.expectedID, result.ID)
+				}
+			})
+		}
+	})
+}

@@ -36,6 +36,7 @@ type IterationMatchType string
 var (
 	IterationMatchTypeStartDateExactly = IterationMatchType("startDateExactly")
 	IterationMatchTypeContains         = IterationMatchType("contains")
+	IterationMatchTypeNearest          = IterationMatchType("nearest")
 )
 
 func matchIteration(
@@ -65,6 +66,10 @@ func (f *ProjectV2IterationField) SelectIteration(
 	targetDate string,
 	matchType IterationMatchType,
 ) (*Iteration, error) {
+	if matchType == IterationMatchTypeNearest {
+		return f.selectNearestIteration(targetDate)
+	}
+
 	iterations := []Iteration{}
 	iterations = append(iterations, f.Configuration.Iterations...)
 	iterations = append(iterations, f.Configuration.CompletedIterations...)
@@ -80,6 +85,53 @@ func (f *ProjectV2IterationField) SelectIteration(
 		}
 	}
 	return nil, nil
+}
+
+func (f *ProjectV2IterationField) selectNearestIteration(targetDate string) (*Iteration, error) {
+	target, err := time.Parse(time.DateOnly, targetDate)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if target date is before all iterations
+	var earliestStart *time.Time
+	for _, iteration := range f.Configuration.Iterations {
+		iterationStart, err := time.Parse(time.DateOnly, iteration.StartDate)
+		if err != nil {
+			continue
+		}
+		if earliestStart == nil || iterationStart.Before(*earliestStart) {
+			earliestStart = &iterationStart
+		}
+	}
+
+	if earliestStart != nil && target.Before(*earliestStart) {
+		return nil, nil
+	}
+
+	var nearest *Iteration
+	var minDiff time.Duration
+
+	for _, iteration := range f.Configuration.Iterations {
+		iteration := iteration
+		
+		iterationStart, err := time.Parse(time.DateOnly, iteration.StartDate)
+		if err != nil {
+			continue
+		}
+
+		diff := target.Sub(iterationStart)
+		if diff < 0 {
+			diff = -diff
+		}
+
+		if nearest == nil || diff < minDiff {
+			nearest = &iteration
+			minDiff = diff
+		}
+	}
+
+	return nearest, nil
 }
 
 type ProjectItem struct {

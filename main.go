@@ -107,6 +107,7 @@ This changes iteration select behavior.
 Iteration match type is the following:
 - startDateExactly: match with iteration start_date (default)
 - contains: match if date is contains iteration date range
+- nearest: match with nearest incomplete iteration to the target date
 				`,
 			},
 			&cli.BoolFlag{
