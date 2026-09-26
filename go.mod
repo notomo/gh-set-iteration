@@ -3,7 +3,7 @@ module github.com/notomo/gh-set-iteration
 go 1.25.0
 
 require (
-	github.com/cli/go-gh/v2 v2.16.0
+	github.com/cli/go-gh/v2 v2.16.1
 	github.com/cli/shurcooL-graphql v0.0.4
 	github.com/stretchr/testify v1.12.1
 	github.com/urfave/cli/v2 v2.27.7
